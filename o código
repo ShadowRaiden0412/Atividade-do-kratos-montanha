@@ -1,0 +1,67 @@
+!pip install matplotlib
+import random
+import matplotlib.pyplot as plt
+
+class GameAgent:
+    def __init__(self, secret_number, max_attempts):
+        self.secret_number = secret_number
+        self.max_attempts = max_attempts
+        self.attempts = 0
+        self.state = "Esperando tentativa"
+        self.history = []  # Histórico de tentativas
+    
+    def make_guess(self, guess):
+        self.attempts += 1
+        self.history.append(guess)
+        
+        if guess == self.secret_number:
+            self.state = "Acertou!"
+            return "Parabéns! Você acertou o número."
+        elif self.attempts >= self.max_attempts:
+            self.state = "Fim do jogo"
+            return f"Game Over! O número era {self.secret_number}."
+        elif guess < self.secret_number:
+            self.state = "Tentativa errada (muito baixo)"
+            return "O número é maior. Tente novamente."
+        else:
+            self.state = "Tentativa errada (muito alto)"
+            return "O número é menor. Tente novamente."
+
+def plot_attempts(agent):
+    plt.figure(figsize=(8,5))
+    plt.plot(range(1, len(agent.history) + 1), agent.history, marker='o', linestyle='-')
+    plt.axhline(y=agent.secret_number, color='r', linestyle='--', label='Número Secreto')
+    plt.xlabel("Tentativas")
+    plt.ylabel("Valor do Palpite")
+    plt.title("Evolução das Tentativas do Jogador")
+    plt.legend()
+    plt.show()
+
+def choose_difficulty():
+    print("Escolha a dificuldade:")
+    print("1 - Fácil (1-50, 10 tentativas)")
+    print("2 - Médio (1-100, 7 tentativas)")
+    print("3 - Difícil (1-200, 5 tentativas)")
+    choice = int(input("Digite o número correspondente à dificuldade desejada: "))
+    
+    if choice == 1:
+        return 50, 10
+    elif choice == 2:
+        return 100, 7
+    elif choice == 3:
+        return 200, 5
+    else:
+        print("Escolha inválida. Usando dificuldade média por padrão.")
+        return 100, 7
+
+# Escolhendo a dificuldade
+max_number, max_attempts = choose_difficulty()
+secret_number = random.randint(1, max_number)
+agent = GameAgent(secret_number, max_attempts)
+
+while agent.state not in ["Acertou!", "Fim do jogo"]:
+    guess = int(input(f"Digite um número entre 1 e {max_number}: "))
+    print(agent.make_guess(guess))
+
+# Plotando o gráfico das tentativas
+plot_attempts(agent)
